@@ -9,7 +9,7 @@
   <version>${exceeddata.version}</version>
   <packaging>jar</packaging>
   <!-- The name should likely match the artifact ID -->
-  <name>ExceedData Formats Public Library</name>
+  <name>EXD Formats Public Library</name>
   <url>http://www.exceeddata.com</url>
  
   <properties>
