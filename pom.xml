@@ -1,0 +1,66 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+ 
+  <!-- Replace the group ID with your group ID -->
+  <groupId>com.exceeddata.ac</groupId>
+  <!-- Replace the artifact ID with the name of your project -->
+  <artifactId>exceeddata-formats-public</artifactId>
+  <version>${exceeddata.version}</version>
+  <packaging>jar</packaging>
+  <!-- The name should likely match the artifact ID -->
+  <name>ExceedData Formats Public Library</name>
+  <url>http://www.exceeddata.com</url>
+ 
+  <properties>
+    <maven.compiler.version>3.8.1</maven.compiler.version>
+    <maven.assembly.version>2.6</maven.assembly.version>
+    <maven.surefire.version>2.19.1</maven.surefire.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <library.ext.directory>package</library.ext.directory>
+    <exceeddata.version>4.9.0</exceeddata.version>
+  </properties>
+
+  <build>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <finalName>exceeddata-formats-public-${project.version}</finalName>
+    <plugins>
+      <plugin>  
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.version}</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+          <encoding>${project.build.sourceEncoding}</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven.surefire.version}</version>
+        <configuration>
+            <argLine>-Xmx4096m</argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+ 
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.exceeddata.ac</groupId>
+      <artifactId>exceeddata-commons-public</artifactId>
+      <version>${exceeddata.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>
