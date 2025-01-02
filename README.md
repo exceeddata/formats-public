@@ -12,7 +12,7 @@ This repo contains public implementations of EXD format processing, such as CSV,
 - JDK 8
 
 ## Software Dependencies
-- [EXD Commons Public Library](https://github.com/exceeddata/commons-public/) 4.9.0+
+- [EXD Commons Public Library](https://github.com/exceeddata/commons-public/) 4.7.0+
   
 ## License
 The codes in the repository are released with [MIT License](LICENSE).
