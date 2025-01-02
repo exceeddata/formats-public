@@ -20,7 +20,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <library.ext.directory>package</library.ext.directory>
-    <exceeddata.version>4.9.0</exceeddata.version>
+    <exceeddata.version>4.7.0</exceeddata.version>
   </properties>
 
   <build>
