@@ -1,6 +1,15 @@
 package com.exceeddata.ac.format.dbc;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.Instant;
 import java.util.BitSet;
+
+import com.exceeddata.ac.common.data.record.Record;
+import com.exceeddata.ac.common.message.MessageContent;
+import com.exceeddata.ac.common.message.MessageDecoder;
+import com.exceeddata.ac.common.message.MessageDesc;
+import com.exceeddata.ac.common.message.MessageDirection;
 
 public final class DbcUtils {
     private DbcUtils(){}
@@ -27,6 +36,17 @@ public final class DbcUtils {
           value += bs.get(i) ? (1L << i) : 0L;
         }
         return value;
+    }
+
+    public static BigDecimal bsToBigDecimal(final BitSet bs) {
+        byte buf [] = new byte[8];
+        for (int i = 0; i < 64; ++i) {
+            int byte_offset = 7 - i/8;
+
+            buf [byte_offset] += bs.get(i) ? (1L << (i%8)) : 0L;
+        }
+        BigInteger bi = new BigInteger(1, buf);
+        return new BigDecimal( bi.toString());
     }
     
     public static int bsToInt(final BitSet bits) {
@@ -64,4 +84,71 @@ public final class DbcUtils {
         }
         return bits;
     }
+
+    public static Record decode(MessageDecoder decoder , Instant time, int channelId, int messageId, byte [] data, Record record  , boolean applyFormula){
+        Message msg = new Message(time, channelId, messageId, data);
+        decoder.compute(msg,msg ,  record, applyFormula);
+        return record;
+    }
+
+    static class Message implements MessageContent, MessageDesc {
+        private static final long serialVersionUID = -649611365826765678L;
+        
+        private Instant msg_time;
+        private int channelId;
+        private long messageId;
+        private byte [] data;
+
+        public Message (Instant time, int channelId, long messageId, byte [] data) {
+            this.msg_time = time;
+            this.channelId = channelId;
+            this.messageId = messageId;
+            this.data = data;
+        }
+
+        @Override
+        public int getChannelID() {
+            return channelId;
+        }
+
+        @Override
+        public long getMessageID() {
+            return messageId;
+        }
+
+        @Override
+        public boolean isError() {
+            return false;
+        }
+
+
+        @Override
+        public Instant getTimeStart() {
+            return msg_time;
+        }
+
+        @Override
+        public long getNanosOffset() {
+            //nano offset comparing to getTimeStart.
+            //we use one class for meta/message, so offset is always 0
+            return 0;
+        }
+
+        @Override
+        public int getDataLength() {
+            return data.length;
+        }
+
+        @Override
+        public MessageDirection getDirection() {
+            return null;
+        }
+
+        @Override
+        public byte[] getData() {
+            return data;
+        }
+
+    }
+
 }
