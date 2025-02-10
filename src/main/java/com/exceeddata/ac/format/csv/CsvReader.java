@@ -92,17 +92,30 @@ public class CsvReader implements ExternRecordReader, Serializable {
     protected boolean hasCustomInstant = false;
     protected boolean hasCustomTimeZone = false;
     
+    public CsvReader() {
+    }
+    
     public CsvReader(final String path) throws IOException {
-        istream = new BufferedInputStream(Files.newInputStream(Paths.get(path), StandardOpenOption.READ));
-        reader = new InputStreamReader(istream, charset);
+    	open(path);
     }
     
     public CsvReader(final InputStream stream) throws IOException {
-        this.istream = stream;
-        this.reader = new InputStreamReader(istream, charset);
+    	open(stream);
     }
     
-    public void setNullString(final String nullString) {
+    public CsvReader open(final String path) throws IOException {
+        istream = new BufferedInputStream(Files.newInputStream(Paths.get(path), StandardOpenOption.READ));
+        reader = new InputStreamReader(istream, charset);
+        return this;
+    }
+    
+    public CsvReader open(final InputStream stream) throws IOException {
+        this.istream = stream;
+        this.reader = new InputStreamReader(istream, charset);
+        return this;
+    }
+    
+    public CsvReader setNullString(final String nullString) {
         if (XStringUtils.isNotBlank(nullString)) {
             this.nullString = nullString;
             this.hasCustomNull = true;
@@ -110,9 +123,10 @@ public class CsvReader implements ExternRecordReader, Serializable {
             this.nullString = "null";
             this.hasCustomNull = false;
         }
+        return this;
     }
     
-    public void setDecimalFormat(final String fmt) {
+    public CsvReader setDecimalFormat(final String fmt) {
         if (XStringUtils.isNotBlank(fmt)) {
             this.customDecimalFormat = new DecimalFormat(fmt);
             this.hasCustomDecimal = true;
@@ -120,9 +134,10 @@ public class CsvReader implements ExternRecordReader, Serializable {
             this.customDecimalFormat = null;
             this.hasCustomDecimal = false;
         }
+        return this;
     }
     
-    public void setDateFormat(final String fmt) {
+    public CsvReader setDateFormat(final String fmt) {
         if (XStringUtils.isNotBlank(fmt)) {
             this.customDateFormat = DateTimeFormatter.ofPattern(fmt);
             this.hasCustomDate = true;
@@ -130,9 +145,10 @@ public class CsvReader implements ExternRecordReader, Serializable {
             this.customDecimalFormat = null;
             this.hasCustomDate = false;
         }
+        return this;
     }
     
-    public void setTimeFormat(final String fmt) {
+    public CsvReader setTimeFormat(final String fmt) {
         if (XStringUtils.isNotBlank(fmt)) {
             this.customTimeFormat = DateTimeFormatter.ofPattern(fmt);
             this.hasCustomTime = true;
@@ -140,9 +156,10 @@ public class CsvReader implements ExternRecordReader, Serializable {
             this.customTimeFormat = null;
             this.hasCustomTime = false;
         }
+        return this;
     }
     
-    public void setTimestampFormat(final String fmt) {
+    public CsvReader setTimestampFormat(final String fmt) {
         if (XStringUtils.isNotBlank(fmt)) {
             this.customTimestampFormat = DateTimeFormatter.ofPattern(fmt);
             this.hasCustomTimestamp = true;
@@ -150,9 +167,10 @@ public class CsvReader implements ExternRecordReader, Serializable {
             this.customTimestampFormat = null;
             this.hasCustomTimestamp = false;
         }
+        return this;
     }
     
-    public void setTimeWithZoneFormat(final String fmt) {
+    public CsvReader setTimeWithZoneFormat(final String fmt) {
         if (XStringUtils.isNotBlank(fmt)) {
             this.customTimeWithTimeZoneFormat = DateTimeFormatter.ofPattern(fmt);
             this.hasCustomTimeWithZone = true;
@@ -160,9 +178,10 @@ public class CsvReader implements ExternRecordReader, Serializable {
             this.customTimeWithTimeZoneFormat = null;
             this.hasCustomTimeWithZone = false;
         }
+        return this;
     }
     
-    public void setTimestampWithZoneFormat(final String fmt) {
+    public CsvReader setTimestampWithZoneFormat(final String fmt) {
         if (XStringUtils.isNotBlank(fmt)) {
             this.customTimestampWithTimeZoneFormat = DateTimeFormatter.ofPattern(fmt);
             this.hasCustomTimestampWithZone = true;
@@ -170,9 +189,10 @@ public class CsvReader implements ExternRecordReader, Serializable {
             this.customTimestampWithTimeZoneFormat = null;
             this.hasCustomTimestampWithZone = false;
         }
+        return this;
     }
     
-    public void setInstantFormat(final String fmt) {
+    public CsvReader setInstantFormat(final String fmt) {
         if (XStringUtils.isNotBlank(fmt)) {
             this.customInstantFormat = DateTimeFormatter.ofPattern(fmt);
             this.hasCustomInstant = true;
@@ -180,9 +200,10 @@ public class CsvReader implements ExternRecordReader, Serializable {
             this.customInstantFormat = null;
             this.hasCustomInstant = false;
         }
+        return this;
     }
     
-    public void setTimeZone(final String zone) {
+    public CsvReader setTimeZone(final String zone) {
         if (XStringUtils.isNotBlank(zone)) {
             this.customDefaultTimeZone = TimeZone.getTimeZone(zone);
             this.hasCustomTimeZone = true;
@@ -190,6 +211,7 @@ public class CsvReader implements ExternRecordReader, Serializable {
             this.customDefaultTimeZone = null;
             this.hasCustomTimeZone = false;
         }
+        return this;
     }
     
     @Override
@@ -197,7 +219,7 @@ public class CsvReader implements ExternRecordReader, Serializable {
         String value = null;
         
         while (nextRow()) {
-            value = row.toString().trim().toLowerCase();
+            value = row.toString().trim();
             if (value.length() == 0) {
                 continue;
             }
@@ -252,10 +274,21 @@ public class CsvReader implements ExternRecordReader, Serializable {
                     //peek next to see if it is escaped double ""
                     if ((i = reader.read()) == -1) {
                         break; //EOF
-                    } else if (i == '"') {
-                        row.append(i);
+                    } else if (i == '\n') {
+                        break;
+                    } else if (i == '\r') {
+                        //peek next to see if it is \r\n
+                        if ((previousChar = reader.read()) != -1) {
+                            if (previousChar == '\n') {
+                                previousChar = -1; //reset previous char
+                            }
+                        }
+                        break;
                     } else {
-                        quoted = false;
+                        row.append((char) i);
+                    	if (i != '"') {
+                    		quoted = false;
+                    	}
                     }
                 }
             } else if (i == '\n') {
