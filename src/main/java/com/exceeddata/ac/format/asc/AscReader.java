@@ -35,6 +35,7 @@ public class AscReader implements ExternMessageReader, Serializable {
     }
     
     public AscReader(final InputStream stream) throws IOException {
+        meta = new AscMeta();
         this.istream = stream;
         this.reader = new InputStreamReader(istream, charset);
     }
